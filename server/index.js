@@ -1,42 +1,27 @@
 import express from "express";
 import cors from "cors";
-import { verifyToken, clerkClient } from "@clerk/clerk-sdk-node";
 import "dotenv/config";
-import mongoose, { mongo } from "mongoose";
-
+import mongoose from "mongoose";
+import projectRoutes from "./routes/projectRoutes.js";
+import { requireAuth } from "./middleware/auth.js";
 
 const app = express();
+
 app.use(cors({ origin: "http://localhost:3000" }));
 app.use(express.json());
-mongoose.connect(process.env.MONGODB_URI).then(() => console.log("MongoDB Connected")).catch((err) => console.error("DB connection error :", err));
 
+// MongoDB connect
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => console.log("✅ MongoDB connected"))
+  .catch(err => console.error("❌ DB error:", err));
 
+// Public route
+app.get("/api/hello", (req, res) => res.json({ message: "Hello From Server 👋" }));
 
+// All other /api routes require Clerk auth
+app.use("/api", requireAuth);
 
+// Protected routes - these will be /api/projects
+app.use("/api/projects", projectRoutes);
 
-async function requireAuth(req, res, next) {
-  try {
-    const token = req.headers.authorization?.split(" ")[1];
-    if (!token) return res.status(401).json({ error: "No token provided" });
-
-    const payload = await verifyToken(token, {
-      secretKey: process.env.CLERK_SECRET_KEY,
-    });
-
-    req.userId = payload.sub;
-    next();
-  } catch (err) {
-    console.error("Auth error:", err.message);
-    res.status(401).json({ error: "Unauthorized" });
-  }
-}
-app.get("/api/hello", (req, res) => {
-  res.json({ message: "Hello from server" })
-})
-
-app.get("/api/userinfo", requireAuth, async (req, res) => {
-  const user = await clerkClient.users.getUser(req.userId);
-  res.json({ id: user.id, email: user.emailAddresses[0].emailAddress });
-});
-
-app.listen(5000, () => console.log("✅ Server running on port 5000"));
+app.listen(5000, () => console.log("🚀 Server running on port 5000"));

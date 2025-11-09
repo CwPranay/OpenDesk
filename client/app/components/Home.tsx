@@ -4,7 +4,7 @@ import { useAuth } from "@clerk/nextjs";
 
 export default function Home() {
   const [message, setMessage] = useState("");
-  const [user, setUser] = useState(null);
+
   const { getToken } = useAuth();
 
   useEffect(() => {
@@ -20,15 +20,8 @@ export default function Home() {
         const token = await getToken({ template: "integrationn_fallback" });
 
         // 3️⃣ fetch protected route
-        const userRes = await fetch("http://localhost:5000/api/userinfo", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
 
-        const userData = await userRes.json();
-        setUser(userData);
-        
+
       } catch (err) {
         console.error("Fetch error:", err);
       }
@@ -49,13 +42,7 @@ export default function Home() {
           {message}
         </p>
 
-        {user ? (
-          <p className="text-green-700 font-medium">
-          
-          </p>
-        ) : (
-          <p className="text-gray-500">Loading user info...</p>
-        )}
+        
 
         <div className="flex gap-4 justify-center mt-6">
           <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl transition">
