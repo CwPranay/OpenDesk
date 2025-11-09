@@ -2,11 +2,15 @@ import express from "express";
 import cors from "cors";
 import { verifyToken, clerkClient } from "@clerk/clerk-sdk-node";
 import "dotenv/config";
+import mongoose, { mongo } from "mongoose";
 
 
 const app = express();
 app.use(cors({ origin: "http://localhost:3000" }));
 app.use(express.json());
+mongoose.connect(process.env.MONGODB_URI).then(() => console.log("MongoDB Connected")).catch((err) => console.error("DB connection error :", err));
+
+
 
 
 
@@ -26,8 +30,8 @@ async function requireAuth(req, res, next) {
     res.status(401).json({ error: "Unauthorized" });
   }
 }
-app.get("/api/hello",(req,res)=>{
-    res.json({message:"Hello from server"})
+app.get("/api/hello", (req, res) => {
+  res.json({ message: "Hello from server" })
 })
 
 app.get("/api/userinfo", requireAuth, async (req, res) => {
