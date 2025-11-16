@@ -61,7 +61,7 @@ router.patch(":/id", requireAuth, async (req, res) => {
         const updates = req.body;
         const task = await Task.findById(req.params.id).populate("project");
         const dbUser = await User.findOne({ clerkId: req.userId });
-        if (!task.project.owner.equals(dbUser._id)) {
+        if (!task.projectid.owner.equals(dbUser._id)) {
             return res.status(403).json({ error: "Not authorized to update task" });
 
         }
@@ -76,10 +76,22 @@ router.patch(":/id", requireAuth, async (req, res) => {
     }
 })
 
-router.delete(":/id",requireAuth,async (req,res) => {
+router.delete(":/id", requireAuth, async (req, res) => {
     try {
-        
+        const task = await Task.findById(req.params.id).populate("project");
+        const dbUser = await User.findOne({ clerkId: req.userId });
+        if (!task.projectid.owner.equals(dbUser._id)) {
+            return res.status(403).json({ error: "Not authorized to delete task" });
+        }
+        await task.deleteOne();
+
+        res.json({ success: true });
+
     } catch (error) {
-        
+        console.error("Delete task error:", err);
+        res.status(500).json({ error: err.message });
     }
-})
+});
+
+
+export default router;

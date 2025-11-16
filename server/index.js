@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import "dotenv/config";
 import mongoose from "mongoose";
+import taskRoutes from "./routes/taskRoutes.js"
 import projectRoutes from "./routes/projectRoutes.js";
 import { requireAuth } from "./middleware/auth.js";
 
@@ -23,5 +24,7 @@ app.use("/api", requireAuth);
 
 // Protected routes - these will be /api/projects
 app.use("/api/projects", projectRoutes);
+
+app.use("/api/tasks", taskRoutes);
 
 app.listen(5000, () => console.log("🚀 Server running on port 5000"));
