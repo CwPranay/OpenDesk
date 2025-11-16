@@ -43,7 +43,7 @@ export default function ProjectPage(){
     <main className="min-h-screen bg-gray-50 text-gray-900 p-8">
       <button
         onClick={() => router.push("/projects")}
-        className="text-blue-600 hover:underline mb-6"
+        className="text-blue-600 cursor-pointer hover:underline mb-6"
       >
         ← Back to All Projects
       </button>
