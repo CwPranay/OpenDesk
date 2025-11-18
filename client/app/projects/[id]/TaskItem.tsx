@@ -48,35 +48,61 @@ export default function TaskItem({ task, onTaskUpdated, onTaskDeleted }: Props) 
     if (res.ok) onTaskDeleted(task._id);
   };
 
+  const statusColors = {
+    pending: "border-gray-700 bg-gray-800/40",
+    "in-progress": "border-blue-900/50 bg-blue-950/30",
+    completed: "border-gray-700 bg-gray-800/30"
+  };
+
   return (
-    <div className="bg-white border rounded-xl p-4 shadow-sm flex justify-between items-center">
-      <div>
-        <h4 className="font-semibold text-gray-800">{task.title}</h4>
-        <p className="text-gray-600 text-sm">{task.description}</p>
-        <p className="text-xs text-gray-400 mt-1">Status: {task.status}</p>
-      </div>
+    <div className={`group border ${statusColors[task.status]} rounded-md p-3.5 hover:bg-gray-800/60 transition-all duration-200 shadow-sm hover:shadow-md`}>
+      <div className="flex justify-between items-start gap-4">
+        <div className="flex-1 min-w-0">
+          <h4 className={`font-medium text-sm mb-1 ${task.status === "completed" ? "text-gray-500 line-through" : "text-white"}`}>
+            {task.title}
+          </h4>
+          
+          {task.description && (
+            <p className="text-gray-500 text-xs leading-relaxed mb-2">
+              {task.description}
+            </p>
+          )}
 
-      <div className="flex gap-2">
-        <button
-          onClick={() => updateStatus("in-progress")}
-          className="text-yellow-600 hover:underline text-sm"
-        >
-          In Progress
-        </button>
+          <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${
+            task.status === "pending" ? "bg-gray-700 text-gray-400" :
+            task.status === "in-progress" ? "bg-blue-900/40 text-blue-400" :
+            "bg-gray-700/50 text-gray-500"
+          }`}>
+            {task.status.replace("-", " ")}
+          </span>
+        </div>
 
-        <button
-          onClick={() => updateStatus("completed")}
-          className="text-green-600 hover:underline text-sm"
-        >
-          Done
-        </button>
+        <div className="flex flex-col gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+          {task.status !== "in-progress" && (
+            <button
+              onClick={() => updateStatus("in-progress")}
+              className="px-2.5 py-1 text-xs font-medium bg-blue-600 text-white hover:bg-blue-700 rounded transition-all duration-200 whitespace-nowrap shadow-sm"
+            >
+              In Progress
+            </button>
+          )}
 
-        <button
-          onClick={deleteTask}
-          className="text-red-600 hover:underline text-sm"
-        >
-          Delete
-        </button>
+          {task.status !== "completed" && (
+            <button
+              onClick={() => updateStatus("completed")}
+              className="px-2.5 py-1 text-xs font-medium bg-gray-700 text-gray-300 hover:bg-gray-600 rounded transition-all duration-200 shadow-sm"
+            >
+              Complete
+            </button>
+          )}
+
+          <button
+            onClick={deleteTask}
+            className="px-2.5 py-1 text-xs font-medium bg-red-600/80 text-white hover:bg-red-700 rounded transition-all duration-200 shadow-sm"
+          >
+            Delete
+          </button>
+        </div>
       </div>
     </div>
   );

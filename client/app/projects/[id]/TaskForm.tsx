@@ -23,7 +23,7 @@ export default function TaskForm({ projectId, onTaskCreated }:TaskFormProps) {
         e.preventDefault();
         if (!title.trim()) return;
         const token = await getToken()
-        const res = await fetch("http://localhost:5000/api/tasks", {
+        const res = await fetch(`http://localhost:5000/api/tasks/${projectId}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -49,32 +49,45 @@ export default function TaskForm({ projectId, onTaskCreated }:TaskFormProps) {
     return (
         <form
             onSubmit={createTask}
-            className="bg-white p-4 rounded-xl shadow border border-gray-200"
+            className="bg-gradient-to-br from-gray-800 to-gray-900 backdrop-blur-sm border border-gray-700 rounded-xl p-5 shadow-2xl"
         >
-            <h3 className="text-lg font-semibold text-gray-800 mb-3">Add Task</h3>
+            <h3 className="text-base font-semibold text-white mb-4">Add New Task</h3>
 
-            <input
-                type="text"
-                placeholder="Task title"
-                className="w-full mb-3 border px-3 py-2 rounded-lg"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                required
-            />
+            <div className="space-y-3">
+                <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-1.5">
+                        Task Title *
+                    </label>
+                    <input
+                        type="text"
+                        placeholder="What needs to be done?"
+                        className="w-full bg-gray-950/80 border border-gray-700 rounded-lg px-3 py-2 text-white placeholder-gray-500 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm shadow-inner focus:shadow-lg"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        required
+                    />
+                </div>
 
-            <textarea
-                placeholder="Task description (optional)"
-                className="w-full mb-3 border px-3 py-2 rounded-lg"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-            />
+                <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-1.5">
+                        Description
+                    </label>
+                    <textarea
+                        placeholder="Add more details..."
+                        className="w-full bg-gray-950/80 border border-gray-700 rounded-lg px-3 py-2 text-white placeholder-gray-500 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all resize-none text-sm shadow-inner focus:shadow-lg"
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        rows={2}
+                    />
+                </div>
 
-            <button
-                type="submit"
-                className="bg-blue-600 text-white px-5 py-2 rounded-xl hover:bg-blue-700 transition"
-            >
-                Add Task
-            </button>
+                <button
+                    type="submit"
+                    className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold px-4 py-2.5 rounded-lg transition-all duration-200 text-sm shadow-xl shadow-blue-900/50 hover:shadow-2xl hover:shadow-blue-900/60 hover:-translate-y-0.5"
+                >
+                    Add Task
+                </button>
+            </div>
         </form>
     );
 }
