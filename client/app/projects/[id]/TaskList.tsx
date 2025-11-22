@@ -1,5 +1,6 @@
 "use client";
 import TaskItem from "./TaskItem";
+
 interface Task {
     _id: string;
     title: string;
@@ -7,16 +8,16 @@ interface Task {
     status: "pending" | "in-progress" | "completed";
     projectId: string;
     createdAt: string;
-    
 }
 
 interface Props {
     tasks: Task[];
     onTaskUpdated: (task: Task) => void;
     onTaskDeleted: (id: string) => void;
+    readOnly?: boolean;
 }
 
-export default function TaskList({ tasks, onTaskUpdated, onTaskDeleted }: Props) {
+export default function TaskList({ tasks, onTaskUpdated, onTaskDeleted, readOnly = false }: Props) {
     const pendingTasks = tasks.filter(t => t.status === "pending");
     const inProgressTasks = tasks.filter(t => t.status === "in-progress");
     const completedTasks = tasks.filter(t => t.status === "completed");
@@ -52,8 +53,9 @@ export default function TaskList({ tasks, onTaskUpdated, onTaskDeleted }: Props)
                                     <TaskItem
                                         key={task._id}
                                         task={task}
-                                        onTaskUpdated={onTaskUpdated}
-                                        onTaskDeleted={onTaskDeleted}
+                                        onTaskUpdated={readOnly ? undefined : onTaskUpdated}
+                                        onTaskDeleted={readOnly ? undefined : onTaskDeleted}
+                                        readOnly={readOnly}
                                     />
                                 ))}
                             </div>
@@ -73,8 +75,9 @@ export default function TaskList({ tasks, onTaskUpdated, onTaskDeleted }: Props)
                                     <TaskItem
                                         key={task._id}
                                         task={task}
-                                        onTaskUpdated={onTaskUpdated}
-                                        onTaskDeleted={onTaskDeleted}
+                                        onTaskUpdated={readOnly ? undefined : onTaskUpdated}
+                                        onTaskDeleted={readOnly ? undefined : onTaskDeleted}
+                                        readOnly={readOnly}
                                     />
                                 ))}
                             </div>
@@ -94,8 +97,9 @@ export default function TaskList({ tasks, onTaskUpdated, onTaskDeleted }: Props)
                                     <TaskItem
                                         key={task._id}
                                         task={task}
-                                        onTaskUpdated={onTaskUpdated}
-                                        onTaskDeleted={onTaskDeleted}
+                                        onTaskUpdated={readOnly ? undefined : onTaskUpdated}
+                                        onTaskDeleted={readOnly ? undefined : onTaskDeleted}
+                                        readOnly={readOnly}
                                     />
                                 ))}
                             </div>

@@ -239,6 +239,7 @@ export default function ProjectPage() {
 
           <TaskList
             tasks={tasks}
+            readOnly={!isOwner}
             onTaskUpdated={(updatedTask: Task) =>
               setTasks(prev =>
                 prev.map(t => (t._id === updatedTask._id ? updatedTask : t))
@@ -248,6 +249,7 @@ export default function ProjectPage() {
               setTasks(prev => prev.filter(t => t._id !== taskId))
             }
           />
+
         </div>
       </div>
     </main>
