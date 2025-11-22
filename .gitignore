@@ -18,3 +18,5 @@ server/.env.local
 .DS_Store
 *.log
 .vscode
+.vscode/
+client/.vscode/
