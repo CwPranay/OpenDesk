@@ -20,9 +20,7 @@ export default function ProjectsPage() {
     const fetchProjects = async () => {
       try {
         const token = await getToken({ template: "integrationn_fallback" }); 
-        const res = await fetch("http://localhost:5000/api/projects/explore", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await fetch("http://localhost:5000/api/projects/explore");
         const data = await res.json();
         setProjects(data);
       } catch (err) {

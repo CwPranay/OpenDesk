@@ -2,9 +2,16 @@
 import { verifyToken } from "@clerk/clerk-sdk-node";
 
 export async function requireAuth(req, res, next) {
+  const authHeader = req.headers.authorization;
+
+  // If NO token → allow public access (explore, public project read)
+  if (!authHeader) {
+    req.userId = null;
+    return next();
+  }
+
   try {
-    const token = req.headers.authorization?.split(" ")[1];
-    if (!token) return res.status(401).json({ error: "No token provided" });
+    const token = authHeader.split(" ")[1];
 
     const payload = await verifyToken(token, {
       secretKey: process.env.CLERK_SECRET_KEY,
@@ -12,8 +19,12 @@ export async function requireAuth(req, res, next) {
 
     req.userId = payload.sub;
     next();
+
   } catch (err) {
     console.error("Auth error:", err.message);
-    res.status(401).json({ error: "Unauthorized" });
+
+    // Invalid or expired token → treat as unauthenticated
+    req.userId = null;
+    next();
   }
 }

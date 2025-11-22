@@ -1,53 +1,23 @@
 import express from "express";
 import Project from "../models/Project.js";
 import User from "../models/User.js";
-import { requireAuth } from "../middleware/auth.js";
 import { clerkClient } from "@clerk/clerk-sdk-node";
 
 const router = express.Router();
 
-// ✅ GET /api/projects - Get all projects for the current user
-router.get("/", async (req, res) => {
-  try {
-    console.log("Fetching projects for user:", req.userId);
-
-    if (!req.userId) {
-      return res.status(401).json({ error: "User not authenticated" });
-    }
-
-    let user = await User.findOne({ clerkId: req.userId });
-    if (!user) {
-      console.log("User not found in database, returning empty projects");
-      return res.json([]);
-    }
-
-    const projects = await Project.find({ owner: user._id })
-      .populate("owner", "name email clerkId")
-      .sort({ createdAt: -1 });
-
-    console.log(`Found ${projects.length} projects`);
-    res.json(projects);
-  } catch (error) {
-    console.error("Error fetching projects:", error);
-    res.status(500).json({
-      message: "Internal server error",
-      error: error.message,
-    });
-  }
-});
-// ✅ GET /api/projects/explore - Public list of all projects
+/* -----------------------------------------------------------
+    PUBLIC ROUTE — GET ALL PROJECTS (EXPLORE)
+----------------------------------------------------------- */
 router.get("/explore", async (req, res) => {
   try {
     const { lang, search } = req.query;
 
     let filter = {};
 
-    // Optional search
     if (search) {
       filter.title = { $regex: search, $options: "i" };
     }
 
-    // Optional language filter if you add "techStack" or "language" field later
     if (lang) {
       filter.language = lang;
     }
@@ -56,23 +26,69 @@ router.get("/explore", async (req, res) => {
       .populate("owner", "name email clerkId")
       .sort({ createdAt: -1 });
 
-    res.json(projects);
+    return res.json(projects);
   } catch (error) {
-    console.error("Error fetching explore projects:", error);
-    res.status(500).json({
-      message: "Internal server error",
-      error: error.message,
-    });
+    console.error("Explore error:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 });
 
+/* -----------------------------------------------------------
+    PRIVATE ROUTE — GET USER'S OWN PROJECTS
+----------------------------------------------------------- */
+router.get("/", async (req, res) => {
+  try {
+    if (!req.userId) {
+      return res.status(401).json({ error: "User not authenticated" });
+    }
 
-// ✅ POST /api/projects - Create a new project
+    let user = await User.findOne({ clerkId: req.userId });
+
+    if (!user) return res.json([]);
+
+    const projects = await Project.find({ owner: user._id })
+      .populate("owner", "name email clerkId")
+      .sort({ createdAt: -1 });
+
+    return res.json(projects);
+  } catch (error) {
+    console.error("Fetch user projects error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/* -----------------------------------------------------------
+    PUBLIC ROUTE — VIEW PROJECT DETAILS
+----------------------------------------------------------- */
+router.get("/:id", async (req, res) => {
+  try {
+    const project = await Project.findById(req.params.id)
+      .populate("owner", "name email clerkId");
+
+    if (!project) return res.status(404).json({ message: "Not found" });
+
+    let isOwner = false;
+
+    if (req.userId) {
+      const user = await User.findOne({ clerkId: req.userId });
+      if (user && project.owner._id.equals(user._id)) isOwner = true;
+    }
+
+    return res.json({
+      ...project.toObject(),
+      isOwner,
+    });
+  } catch (error) {
+    console.error("Fetch project error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+/* -----------------------------------------------------------
+    PRIVATE ROUTE — CREATE PROJECT
+----------------------------------------------------------- */
 router.post("/", async (req, res) => {
   try {
-    console.log("Creating project for user:", req.userId);
-    console.log("Request body:", req.body);
-
     if (!req.userId) {
       return res.status(401).json({ error: "User not authenticated" });
     }
@@ -83,7 +99,6 @@ router.post("/", async (req, res) => {
       return res.status(400).json({ error: "Project title is required" });
     }
 
-    // Check if user exists in DB, if not create it
     let user = await User.findOne({ clerkId: req.userId });
 
     if (!user) {
@@ -93,101 +108,51 @@ router.post("/", async (req, res) => {
         email: clerkUser.emailAddresses[0].emailAddress,
         name: clerkUser.firstName || "Unnamed",
       });
-      console.log("🆕 Created new user in DB:", user.email);
     }
 
     const project = await Project.create({
-      title: title.trim(),
-      description: description?.trim(),
-      repoUrl: repoUrl?.trim(),
+      title,
+      description,
+      repoUrl,
       owner: user._id,
     });
 
-    await project.populate("owner", "name email");
+    await project.populate("owner", "name email clerkId");
 
-    console.log("✅ Created project:", project.title);
     res.status(201).json(project);
   } catch (error) {
-    console.error("Error creating project:", error);
-    res.status(500).json({
-      message: "Internal server error",
-      error: error.message,
-    });
+    console.error("Create project error:", error);
+    res.status(500).json({ error: error.message });
   }
 });
-// DELETE /api/projects/:id - Delete a project
+
+/* -----------------------------------------------------------
+    PRIVATE ROUTE — DELETE PROJECT
+----------------------------------------------------------- */
 router.delete("/:id", async (req, res) => {
   try {
-    console.log("Deleting project:", req.params.id);
-
     if (!req.userId) {
       return res.status(401).json({ error: "User not authenticated" });
     }
 
     const user = await User.findOne({ clerkId: req.userId });
-    if (!user) {
-      return res.status(403).json({ error: "Access denied" });
-    }
-
     const project = await Project.findById(req.params.id);
 
     if (!project) {
       return res.status(404).json({ error: "Project not found" });
     }
 
-    // Ensure the project belongs to the current user
     if (!project.owner.equals(user._id)) {
       return res.status(403).json({ error: "Access denied" });
     }
 
-    await Project.findByIdAndDelete(req.params.id);
+    await project.deleteOne();
 
-    console.log("✅ Project deleted:", req.params.id);
-
-    res.json({ success: true, message: "Project deleted" });
+    res.json({ success: true });
   } catch (error) {
-    console.error("Error deleting project:", error);
+    console.error("Delete project error:", error);
     res.status(500).json({ error: error.message });
   }
 });
-
-
-// ✅ GET /api/projects/:id - Fetch a single project by ID
-// GET /api/projects/:id - Public read, private edit
-router.get("/:id", async (req, res) => {
-  try {
-    console.log("Fetching project by ID:", req.params.id);
-
-    const project = await Project.findById(req.params.id)
-      .populate("owner", "name email clerkId");
-
-    if (!project) {
-      return res.status(404).json({ message: "Project not found" });
-    }
-
-    // Check if logged-in user is the owner
-    let isOwner = false;
-
-    if (req.userId) {
-      const user = await User.findOne({ clerkId: req.userId });
-      if (user && project.owner._id.equals(user._id)) {
-        isOwner = true;
-      }
-    }
-
-    // Return project + ownership flag
-    res.json({
-      ...project.toObject(),
-      isOwner,
-    });
-
-  } catch (error) {
-    console.error("Error fetching project by ID:", error);
-    res.status(500).json({ message: "Internal server error", error: error.message });
-  }
-});
-
-
-
 
 export default router;
