@@ -7,7 +7,7 @@ import { clerkClient } from "@clerk/clerk-sdk-node";
 const router = express.Router();
 
 // ✅ GET /api/projects - Get all projects for the current user
-router.get("/", requireAuth, async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     console.log("Fetching projects for user:", req.userId);
 
@@ -35,9 +35,40 @@ router.get("/", requireAuth, async (req, res) => {
     });
   }
 });
+// ✅ GET /api/projects/explore - Public list of all projects
+router.get("/explore", async (req, res) => {
+  try {
+    const { lang, search } = req.query;
+
+    let filter = {};
+
+    // Optional search
+    if (search) {
+      filter.title = { $regex: search, $options: "i" };
+    }
+
+    // Optional language filter if you add "techStack" or "language" field later
+    if (lang) {
+      filter.language = lang;
+    }
+
+    const projects = await Project.find(filter)
+      .populate("owner", "name email")
+      .sort({ createdAt: -1 });
+
+    res.json(projects);
+  } catch (error) {
+    console.error("Error fetching explore projects:", error);
+    res.status(500).json({
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+});
+
 
 // ✅ POST /api/projects - Create a new project
-router.post("/", requireAuth, async (req, res) => {
+router.post("/", async (req, res) => {
   try {
     console.log("Creating project for user:", req.userId);
     console.log("Request body:", req.body);
@@ -84,9 +115,45 @@ router.post("/", requireAuth, async (req, res) => {
     });
   }
 });
+// DELETE /api/projects/:id - Delete a project
+router.delete("/:id", async (req, res) => {
+  try {
+    console.log("Deleting project:", req.params.id);
+
+    if (!req.userId) {
+      return res.status(401).json({ error: "User not authenticated" });
+    }
+
+    const user = await User.findOne({ clerkId: req.userId });
+    if (!user) {
+      return res.status(403).json({ error: "Access denied" });
+    }
+
+    const project = await Project.findById(req.params.id);
+
+    if (!project) {
+      return res.status(404).json({ error: "Project not found" });
+    }
+
+    // Ensure the project belongs to the current user
+    if (!project.owner.equals(user._id)) {
+      return res.status(403).json({ error: "Access denied" });
+    }
+
+    await Project.findByIdAndDelete(req.params.id);
+
+    console.log("✅ Project deleted:", req.params.id);
+
+    res.json({ success: true, message: "Project deleted" });
+  } catch (error) {
+    console.error("Error deleting project:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 
 // ✅ GET /api/projects/:id - Fetch a single project by ID
-router.get("/:id", requireAuth, async (req, res) => {
+router.get("/:id", async (req, res) => {
   try {
     console.log("Fetching project by ID:", req.params.id);
 
@@ -112,5 +179,7 @@ router.get("/:id", requireAuth, async (req, res) => {
     });
   }
 });
+
+
 
 export default router;
