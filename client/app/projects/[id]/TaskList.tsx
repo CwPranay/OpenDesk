@@ -7,6 +7,7 @@ interface Task {
     status: "pending" | "in-progress" | "completed";
     projectId: string;
     createdAt: string;
+    
 }
 
 interface Props {

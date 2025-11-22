@@ -74,7 +74,7 @@ export default function ProjectsPage() {
         {projects.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {projects.map((project: Project) => (
-              <Link key={project._id} href={`/projects/${project._id}`}>
+              <Link key={project._id} href={`/projects/${project._id}?from=projects`}>
                 <div className="group bg-gradient-to-br from-gray-800 to-gray-900 backdrop-blur-sm rounded-xl p-6 border border-gray-700 hover:border-blue-600/50 hover:from-gray-800 hover:to-gray-800 transition-all duration-300 cursor-pointer shadow-xl hover:shadow-2xl hover:-translate-y-1">
                   <div className="flex items-start gap-4 mb-4">
                     <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center flex-shrink-0 shadow-lg group-hover:from-blue-600 group-hover:to-blue-700 transition-all duration-300">

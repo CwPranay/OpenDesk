@@ -22,7 +22,7 @@ router.get("/", async (req, res) => {
     }
 
     const projects = await Project.find({ owner: user._id })
-      .populate("owner", "name email")
+      .populate("owner", "name email clerkId")
       .sort({ createdAt: -1 });
 
     console.log(`Found ${projects.length} projects`);
@@ -53,7 +53,7 @@ router.get("/explore", async (req, res) => {
     }
 
     const projects = await Project.find(filter)
-      .populate("owner", "name email")
+      .populate("owner", "name email clerkId")
       .sort({ createdAt: -1 });
 
     res.json(projects);
@@ -153,32 +153,40 @@ router.delete("/:id", async (req, res) => {
 
 
 // ✅ GET /api/projects/:id - Fetch a single project by ID
+// GET /api/projects/:id - Public read, private edit
 router.get("/:id", async (req, res) => {
   try {
     console.log("Fetching project by ID:", req.params.id);
 
     const project = await Project.findById(req.params.id)
-      .populate("owner", "name email");
+      .populate("owner", "name email clerkId");
 
     if (!project) {
-      console.log("❌ Project not found");
       return res.status(404).json({ message: "Project not found" });
     }
 
-    const user = await User.findOne({ clerkId: req.userId });
-    if (!user || !project.owner._id.equals(user._id)) {
-      return res.status(403).json({ error: "Access denied" });
+    // Check if logged-in user is the owner
+    let isOwner = false;
+
+    if (req.userId) {
+      const user = await User.findOne({ clerkId: req.userId });
+      if (user && project.owner._id.equals(user._id)) {
+        isOwner = true;
+      }
     }
 
-    res.json(project);
+    // Return project + ownership flag
+    res.json({
+      ...project.toObject(),
+      isOwner,
+    });
+
   } catch (error) {
     console.error("Error fetching project by ID:", error);
-    res.status(500).json({
-      message: "Internal server error",
-      error: error.message,
-    });
+    res.status(500).json({ message: "Internal server error", error: error.message });
   }
 });
+
 
 
 

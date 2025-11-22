@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
 import TaskForm from "./TaskForm";
 import {
@@ -25,7 +25,7 @@ interface Project {
   title: string;
   description?: string;
   repoUrl?: string;
-  owner?: { name: string; email: string };
+  owner?: { name: string; email: string, clerkId: string };
   createdAt: string;
 }
 
@@ -40,14 +40,18 @@ interface Task {
 }
 
 export default function ProjectPage() {
-  
+  const { userId } = useAuth()
   const { id } = useParams();
   const router = useRouter();
   const { getToken } = useAuth();
-  
+  const searchParams = useSearchParams();
+  const from = searchParams.get("from");
+
 
   const [project, setProject] = useState<Project | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [isOwner, setIsOwner] = useState(false);
+
 
   useEffect(() => {
     const loadData = async () => {
@@ -69,7 +73,10 @@ export default function ProjectPage() {
 
       if (!taskRes.ok) return;
       const taskData = await taskRes.json();
-      setTasks(taskData);
+      setTasks(taskData.tasks);
+
+      // SAVE OWNER FLAG
+      setIsOwner(taskData.isOwner);
     };
 
     loadData();
@@ -83,7 +90,7 @@ export default function ProjectPage() {
       method: "DELETE",
       credentials: "include",
     });
-     window.location.href="/projects"
+    window.location.href = "/projects"
     if (!res.ok) {
       const error = await res.json();
       throw new Error(error?.error || "Delete failed");
@@ -110,7 +117,15 @@ export default function ProjectPage() {
       <div className="relative z-10 max-w-6xl mx-auto">
         {/* Back Button */}
         <button
-          onClick={() => router.push("/projects")}
+          onClick={() => {
+            if (from === "explore") {
+              router.push("/projects/explore");
+            }
+            else {
+              router.push("/projects")
+            }
+          }
+          }
           className="flex items-center gap-2 text-gray-400 hover:text-gray-300 mb-6 transition-colors"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -134,7 +149,7 @@ export default function ProjectPage() {
                   <h1 className="text-2xl font-semibold text-white">
                     {project.title}
                   </h1>
-                  <AlertDialog>
+                  {project.owner?.clerkId == userId && <AlertDialog>
                     <AlertDialogTrigger><Trash2 /></AlertDialogTrigger>
                     <AlertDialogContent className="bg-linear-to-br text-white from-gray-800 to-gray-900">
                       <AlertDialogHeader>
@@ -165,7 +180,8 @@ export default function ProjectPage() {
 
                       </AlertDialogFooter>
                     </AlertDialogContent>
-                  </AlertDialog>
+                  </AlertDialog>}
+
                 </div>
 
               </div>
@@ -213,11 +229,13 @@ export default function ProjectPage() {
         </div>
 
         {/* Tasks Section */}
+
         <div className="space-y-6">
-          <TaskForm
+          {project.owner?.clerkId == userId && <TaskForm
             projectId={project._id}
             onTaskCreated={(task: Task) => setTasks(prev => [task, ...prev])}
-          />
+          />}
+
 
           <TaskList
             tasks={tasks}
