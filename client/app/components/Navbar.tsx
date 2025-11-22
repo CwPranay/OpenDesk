@@ -75,13 +75,13 @@ export default function Navbar() {
           <SignedIn>
             <div className="flex items-center gap-3">
               <Link
-                href="/dashboard"
+                href="/"
                 className="px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-indigo-500/10 rounded-lg transition-all duration-200"
               >
                 Dashboard
               </Link>
               <Link
-                href="/create"
+                href="/projects"
                 className="px-4 py-2 text-sm bg-linear-to-r from-indigo-500 to-purple-600 rounded-lg hover:from-indigo-600 hover:to-purple-700 text-white font-medium transition-all duration-200 shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:scale-105 active:scale-95 flex items-center gap-2"
               >
                 <span className="text-lg leading-none">+</span>
