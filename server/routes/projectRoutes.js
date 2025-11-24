@@ -2,6 +2,7 @@ import express from "express";
 import Project from "../models/Project.js";
 import User from "../models/User.js";
 import { clerkClient } from "@clerk/clerk-sdk-node";
+import { requireAuth } from "../middleware/auth.js";
 
 const router = express.Router();
 
@@ -36,7 +37,7 @@ router.get("/explore", async (req, res) => {
 /* -----------------------------------------------------------
     PRIVATE ROUTE — GET USER'S OWN PROJECTS
 ----------------------------------------------------------- */
-router.get("/", async (req, res) => {
+router.get("/",requireAuth, async (req, res) => {
   try {
     if (!req.userId) {
       return res.status(401).json({ error: "User not authenticated" });
@@ -60,7 +61,7 @@ router.get("/", async (req, res) => {
 /* -----------------------------------------------------------
     PUBLIC ROUTE — VIEW PROJECT DETAILS
 ----------------------------------------------------------- */
-router.get("/:id", async (req, res) => {
+router.get("/:id",requireAuth, async (req, res) => {
   try {
     const project = await Project.findById(req.params.id)
       .populate("owner", "name email clerkId");
@@ -87,7 +88,7 @@ router.get("/:id", async (req, res) => {
 /* -----------------------------------------------------------
     PRIVATE ROUTE — CREATE PROJECT
 ----------------------------------------------------------- */
-router.post("/", async (req, res) => {
+router.post("/",requireAuth, async (req, res) => {
   try {
     if (!req.userId) {
       return res.status(401).json({ error: "User not authenticated" });
@@ -129,7 +130,7 @@ router.post("/", async (req, res) => {
 /* -----------------------------------------------------------
     PRIVATE ROUTE — DELETE PROJECT
 ----------------------------------------------------------- */
-router.delete("/:id", async (req, res) => {
+router.delete("/:id",requireAuth, async (req, res) => {
   try {
     if (!req.userId) {
       return res.status(401).json({ error: "User not authenticated" });

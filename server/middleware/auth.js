@@ -1,13 +1,11 @@
-// server/middleware/auth.js
+// strict auth (real protection)
 import { verifyToken } from "@clerk/clerk-sdk-node";
 
 export async function requireAuth(req, res, next) {
   const authHeader = req.headers.authorization;
 
-  // If NO token → allow public access (explore, public project read)
   if (!authHeader) {
-    req.userId = null;
-    return next();
+    return res.status(401).json({ error: "Unauthorized" });
   }
 
   try {
@@ -22,9 +20,6 @@ export async function requireAuth(req, res, next) {
 
   } catch (err) {
     console.error("Auth error:", err.message);
-
-    // Invalid or expired token → treat as unauthenticated
-    req.userId = null;
-    next();
+    return res.status(401).json({ error: "Unauthorized" });
   }
 }
