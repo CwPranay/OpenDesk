@@ -33,7 +33,7 @@ export default function Home() {
         {/* Hero Section */}
         <div className="text-center space-y-8 max-w-5xl mx-auto">
           {/* Badge */}
-          
+        
 
           {/* Main Heading */}
           <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white">

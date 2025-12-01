@@ -22,7 +22,7 @@ mongoose.connect(process.env.MONGODB_URI)
   .catch(err => console.error("❌ DB error:", err));
 
 // Public test route
-app.get("/api/hello", (req, res) => res.json({ message: "Hello From Server 👋" }));
+app.get("/api/hello", (req, res) => res.json({ message: "OpenDesk : The Collabration Tool" }));
 
 // ⛔ REMOVE THIS — it breaks explore
 // app.use("/api", requireAuth);
