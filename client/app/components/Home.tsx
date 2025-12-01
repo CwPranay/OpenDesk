@@ -33,7 +33,12 @@ export default function Home() {
         {/* Hero Section */}
         <div className="text-center space-y-8 max-w-5xl mx-auto">
           {/* Badge */}
-        
+          {message && (
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-gray-800 border border-gray-700">
+              <span className="w-2 h-2 rounded-full bg-green-500"></span>
+              <span className="text-sm text-gray-300">{message}</span>
+            </div>
+          )}
 
           {/* Main Heading */}
           <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white">
