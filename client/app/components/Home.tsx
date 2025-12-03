@@ -1,10 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useAuth } from "@clerk/nextjs";
+import { useAuth, useUser } from "@clerk/nextjs";
 import Link from "next/link";
+
 
 export default function Home() {
   const [message, setMessage] = useState("");
+  const { user } = useUser()
 
   const { getToken } = useAuth();
 
@@ -28,7 +30,7 @@ export default function Home() {
     <main className="min-h-screen bg-gradient-to-br from-slate-950 via-gray-900 to-slate-950 text-white relative overflow-hidden">
       {/* Subtle background pattern */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-900/10 via-transparent to-transparent"></div>
-      
+
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6 py-20">
         {/* Hero Section */}
         <div className="text-center space-y-8 max-w-5xl mx-auto">
@@ -52,11 +54,14 @@ export default function Home() {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center mt-10">
-            <Link href="/projects">
-              <button className="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-lg font-medium text-white transition-all duration-200 shadow-lg shadow-blue-900/50 hover:shadow-xl hover:shadow-blue-900/60">
+              <button onClick={()=>{
+                if (user) {
+                  window.location.href="/projects"
+                }
+              }} className="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-lg font-medium text-white transition-all duration-200 shadow-lg shadow-blue-900/50 hover:shadow-xl hover:shadow-blue-900/60">
                 Get Started
               </button>
-            </Link>
+          
             <Link href="/about">
               <button className="px-8 py-3 border-2 border-gray-700 hover:border-gray-600 hover:bg-gray-800/80 rounded-lg font-medium text-white transition-all duration-200 shadow-lg shadow-black/20">
                 Learn More
