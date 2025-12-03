@@ -20,24 +20,27 @@ export default function ProjectsPage() {
   const { isLoaded, user } = useUser();
   const router = useRouter();
 
-  // ⛔ AUTH REDIRECT — must be its own effect
+  // ----------------------------
+  // 1) REDIRECT IF NO USER
+  // ----------------------------
   useEffect(() => {
     if (!isLoaded) return;
-
     if (!user) {
       router.replace("/");
     }
   }, [isLoaded, user, router]);
 
-  // ⛔ BLOCK RENDER until auth is checked
-  if (!isLoaded) return null;
-  if (!user) return null;
-
-  // ✅ FETCH PROJECTS — separate effect
+  // ----------------------------
+  // 2) FETCH PROJECTS
+  // ----------------------------
   useEffect(() => {
+    if (!isLoaded || !user) return; // Wait until auth is ready
+
     const fetchProjects = async () => {
       try {
-        const token = await getToken({ template: "integrationn_fallback" });
+        const token = await getToken({
+          template: "integrationn_fallback",
+        });
 
         const res = await fetch("http://localhost:5000/api/projects", {
           headers: { Authorization: `Bearer ${token}` },
@@ -46,30 +49,32 @@ export default function ProjectsPage() {
         const data = await res.json();
         setProjects(data);
       } catch (err) {
-        console.error("Fetch projects error:", err);
+        console.error("Projects fetch error:", err);
       } finally {
         setLoading(false);
       }
     };
 
     fetchProjects();
-  }, [getToken]);
+  }, [isLoaded, user, getToken]);
 
-  const handleProjectCreated = (newProject: Project) => {
-    setProjects((prev) => [newProject, ...prev]);
-  };
-
-  if (loading) {
+  // ----------------------------
+  // 3) LOADING SCREEN
+  // ----------------------------
+  if (!isLoaded || loading) {
     return (
-      <main className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
+      <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-950 via-gray-900 to-slate-950 text-white">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-gray-700 border-t-gray-500 rounded-full animate-spin"></div>
-          <p className="text-gray-400">Loading projects...</p>
+          <div className="w-10 h-10 border-4 border-gray-700 border-t-gray-400 rounded-full animate-spin"></div>
+          <p className="text-gray-300">Loading projects...</p>
         </div>
       </main>
     );
   }
 
+  // ----------------------------
+  // 4) FINAL UI
+  // ----------------------------
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-950 via-gray-900 to-slate-950 text-white py-12 px-6">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-900/10 via-transparent to-transparent"></div>
@@ -85,7 +90,9 @@ export default function ProjectsPage() {
         </div>
 
         <div className="mb-12">
-          <ProjectForm onProjectCreated={handleProjectCreated} />
+          <ProjectForm onProjectCreated={(newProject) => {
+            setProjects((prev) => [newProject, ...prev]);
+          }} />
         </div>
 
         {projects.length > 0 ? (
@@ -95,23 +102,16 @@ export default function ProjectsPage() {
                 key={project._id}
                 href={`/projects/${project._id}?from=projects`}
               >
-                <div className="group bg-gradient-to-br from-gray-800 to-gray-900 backdrop-blur-sm rounded-xl p-6 border border-gray-700 hover:border-blue-600/50 hover:from-gray-800 hover:to-gray-800 transition-all duration-300 cursor-pointer shadow-xl hover:shadow-2xl hover:-translate-y-1">
+                <div className="group bg-gradient-to-br from-gray-800 to-gray-900 backdrop-blur-sm rounded-xl p-6 border border-gray-700 hover:border-blue-600/50 hover:bg-gray-800 transition-all duration-300 cursor-pointer shadow-xl hover:shadow-2xl hover:-translate-y-1">
+
                   <div className="flex items-start gap-4 mb-4">
-                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center flex-shrink-0 shadow-lg group-hover:from-blue-600 group-hover:to-blue-700 transition-all duration-300">
-                      <svg
-                        className="w-5 h-5 text-gray-300 group-hover:text-white transition-colors"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
-                        />
+                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center shadow-lg group-hover:from-blue-600 group-hover:to-blue-700 transition-all">
+                      <svg className="w-5 h-5 text-gray-300 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                          d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
                       </svg>
                     </div>
+
                     <div className="flex-1 min-w-0">
                       <h3 className="text-xl font-semibold mb-2 text-white truncate">
                         {project.title}
@@ -124,62 +124,28 @@ export default function ProjectsPage() {
 
                   <div className="flex items-center justify-between pt-4 border-t border-gray-700/50">
                     <div className="flex items-center gap-2 text-xs text-gray-500">
-                      <svg
-                        className="w-3.5 h-3.5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                        />
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
                       {new Date(project.createdAt).toLocaleDateString()}
                     </div>
-                    <svg
-                      className="w-4 h-4 text-gray-600 group-hover:text-blue-500 group-hover:translate-x-1 transition-all"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 5l7 7-7 7"
-                      />
+
+                    <svg className="w-4 h-4 text-gray-600 group-hover:text-blue-500 group-hover:translate-x-1 transition-all"
+                      fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                        d="M9 5l7 7-7 7" />
                     </svg>
                   </div>
+
                 </div>
               </Link>
             ))}
           </div>
         ) : (
           <div className="text-center py-16">
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-lg bg-gray-800 border border-gray-700 mb-4">
-              <svg
-                className="w-10 h-10 text-gray-500"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
-                />
-              </svg>
-            </div>
-            <h3 className="text-xl font-semibold text-gray-300 mb-2">
-              No projects yet
-            </h3>
-            <p className="text-gray-500 text-sm">
-              Create your first project to get started
-            </p>
+            <h3 className="text-xl font-semibold text-gray-300 mb-2">No projects yet</h3>
+            <p className="text-gray-500 text-sm">Create your first project to get started</p>
           </div>
         )}
       </div>
