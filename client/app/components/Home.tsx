@@ -2,11 +2,14 @@
 import { useEffect, useState } from "react";
 import { useAuth, useUser } from "@clerk/nextjs";
 import Link from "next/link";
+import { useClerk } from "@clerk/nextjs";
+
 
 
 export default function Home() {
   const [message, setMessage] = useState("");
   const { user } = useUser()
+  const clerk =useClerk()
 
   const { getToken } = useAuth();
 
@@ -57,6 +60,10 @@ export default function Home() {
               <button onClick={()=>{
                 if (user) {
                   window.location.href="/projects"
+                }
+                else{
+                  clerk.openSignIn()
+
                 }
               }} className="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-lg font-medium text-white transition-all duration-200 shadow-lg shadow-blue-900/50 hover:shadow-xl hover:shadow-blue-900/60">
                 Get Started
