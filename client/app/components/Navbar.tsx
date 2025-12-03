@@ -14,7 +14,7 @@ export default function Navbar() {
 
 
   return (
-    <nav className="sticky top-0 z-50 bg-slate-900/80 backdrop-blur-xl border-b border-indigo-500/20 shadow-lg shadow-indigo-500/10">
+    <nav className="sticky top-0 z-50 bg-slate-900 backdrop-blur-xl border-b border-indigo-500/20 shadow-lg shadow-indigo-500/10">
       <div className="max-w-7xl mx-auto h-16 flex items-center justify-between px-6">
         {/* ---------- Brand ---------- */}
         <Link href="/" className="group relative text-2xl font-bold tracking-tight">
