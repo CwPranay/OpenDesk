@@ -12,7 +12,7 @@ const router = express.Router();
 router.get("/explore", async (req, res) => {
   try {
     const { lang, search } = req.query;
-
+   console.log(process.env.MONGODB_URI)
     let filter = {};
 
     if (search) {
