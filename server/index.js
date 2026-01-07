@@ -9,7 +9,7 @@ import { requireAuth } from "./middleware/auth.js";
 const app = express();
 
 app.use(cors({
-  origin: "http://localhost:3000",
+  origin: ["http://localhost:3000","https://open-desk.vercel.app"],
   methods: ["GET", "POST", "PATCH", "DELETE"],
   credentials: true,
 }));
