@@ -8,9 +8,12 @@ import {
   SignUpButton,
   UserButton,
 } from "@clerk/nextjs";
+import { useState } from "react";
 
 
 export default function Navbar() {
+  const [menu,showMenu]=useState(false)
+  
 
 
   return (
@@ -102,7 +105,9 @@ export default function Navbar() {
         </div>
 
         {/* ---------- Mobile Menu (Hamburger) ---------- */}
-        <div className="md:hidden flex items-center cursor-pointer text-gray-300 hover:text-indigo-400 transition-colors duration-200 hover:scale-110 active:scale-95">
+        <div onClick={()=>{
+        showMenu(true)
+        }} className={`md:hidden ${menu?'hidden':'flex'}  items-center cursor-pointer text-gray-300 hover:text-indigo-400 transition-colors duration-200 hover:scale-110 active:scale-95`}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-6 w-6"
@@ -118,6 +123,19 @@ export default function Navbar() {
             />
           </svg>
         </div>
+       {menu && (
+        <div className="bg-slate-900 relative h-full backdrop-blur-xl border-b border-indigo-500/20 shadow-lg shadow-indigo-500/10">
+           <Link href="/" className="group relative text-2xl font-bold tracking-tight">
+          <span className="text-indigo-400 group-hover:text-indigo-300 transition-colors duration-300">
+            Open
+          </span>
+          <span className="text-white group-hover:text-gray-100 transition-colors duration-300">
+            Desk
+          </span>
+          <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-linear-to-r from-indigo-400 to-purple-500 group-hover:w-full transition-all duration-300"></div>
+        </Link>
+        </div>
+       )}
       </div>
     </nav>
   );
