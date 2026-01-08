@@ -9,10 +9,12 @@ import {
   UserButton,
 } from "@clerk/nextjs";
 import { useState } from "react";
+import {  X } from "lucide-react";
 
 
 export default function Navbar() {
   const [menu,showMenu]=useState(false)
+
   
 
 
@@ -123,9 +125,13 @@ export default function Navbar() {
             />
           </svg>
         </div>
-       {menu && (
-        <div className="bg-slate-900 relative h-full backdrop-blur-xl border-b border-indigo-500/20 shadow-lg shadow-indigo-500/10">
-           <Link href="/" className="group relative text-2xl font-bold tracking-tight">
+        {menu&&(
+          
+          <div className="fixed w-64 p-10 text-center items-center bg-slate-900 backdrop-blur-xl border-b border-indigo-500/20 shadow-lg shadow-indigo-500/10 top-0 flex flex-col gap-10 right-0 h-screen ">
+            <div onClick={()=>{showMenu(false)}} className=" text-gray-300 hover:text-indigo-400 transition-colors duration-200 hover:scale-110 active:scale-95 cursor-pointer absolute right-0 top-0 m-5 flex">
+              <X/>
+            </div>
+          <Link  href="/" className="group  relative text-2xl font-bold tracking-tight">
           <span className="text-indigo-400 group-hover:text-indigo-300 transition-colors duration-300">
             Open
           </span>
@@ -134,8 +140,68 @@ export default function Navbar() {
           </span>
           <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-linear-to-r from-indigo-400 to-purple-500 group-hover:w-full transition-all duration-300"></div>
         </Link>
+         <div className="flex-col flex items-center gap-1 text-sm font-medium">
+          <Link
+            href="/"
+            className="px-4 py-2 rounded-lg text-gray-300 hover:text-white hover:bg-indigo-500/10 transition-all duration-200 relative group"
+          >
+            Home
+            <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-indigo-400 group-hover:w-3/4 transition-all duration-300"></span>
+          </Link>
+
+          <SignedIn>
+            <Link
+              href="/projects"
+              className="px-4 py-2 rounded-lg text-gray-300 hover:text-white hover:bg-indigo-500/10 transition-all duration-200 relative group"
+            >
+              Projects
+              <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-indigo-400 group-hover:w-3/4 transition-all duration-300"></span>
+            </Link>
+          </SignedIn>
+
+          <Link
+            href="/projects/explore"
+            className="px-4 py-2 rounded-lg text-gray-300 hover:text-white hover:bg-indigo-500/10 transition-all duration-200 relative group"
+          >
+            Explore
+            <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-indigo-400 group-hover:w-3/4 transition-all duration-300"></span>
+          </Link>
+          <Link
+            href="/about"
+            className="px-4 py-2 rounded-lg text-gray-300 hover:text-white hover:bg-indigo-500/10 transition-all duration-200 relative group"
+          >
+            About
+            <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-indigo-400 group-hover:w-3/4 transition-all duration-300"></span>
+          </Link>
         </div>
-       )}
+
+        {/* ---------- Auth Section ---------- */}
+        <div className="md:flex items-center gap-3">
+          <SignedOut>
+            <SignInButton mode="modal">
+              <button className="px-5 py-2 rounded-lg border-2 border-indigo-500/50 text-indigo-400 hover:border-indigo-400 hover:bg-indigo-500/10 hover:text-indigo-300 font-medium transition-all duration-200 hover:scale-105 active:scale-95">
+                Sign In
+              </button>
+            </SignInButton>
+
+            <SignUpButton mode="modal">
+              <button className="px-5 py-2 rounded-lg bg-linear-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-medium transition-all duration-200 shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:scale-105 active:scale-95">
+                Sign Up
+              </button>
+            </SignUpButton>
+          </SignedOut>
+
+          <SignedIn>
+            <div className="flex self-center items-center gap-3">
+        
+
+              <UserButton afterSignOutUrl="/" />
+
+            </div>
+          </SignedIn>
+        </div>
+        </div>)}
+          
       </div>
     </nav>
   );
