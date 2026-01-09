@@ -27,7 +27,7 @@ export default function ProjectForm({ onProjectCreated }: ProjectFormProps) {
     try {
       setLoading(true);
       const token = await getToken({ template: "integrationn_fallback" });
-      const res = await fetch("http://localhost:5000/api/projects", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/projects`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

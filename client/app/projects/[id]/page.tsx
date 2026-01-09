@@ -58,7 +58,7 @@ export default function ProjectPage() {
       const token = await getToken();
 
       // Fetch project
-      const projectRes = await fetch(`http://localhost:5000/api/projects/${id}`, {
+      const projectRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/projects/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -67,7 +67,7 @@ export default function ProjectPage() {
       setProject(projectData);
 
       // Fetch tasks
-      const taskRes = await fetch(`http://localhost:5000/api/tasks/${id}`, {
+      const taskRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tasks/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -83,7 +83,7 @@ export default function ProjectPage() {
   }, [id, getToken]);
   async function deleteProject(projectId: string) {
     const token = await getToken();
-    const res = await fetch(`http://localhost:5000/api/projects/${projectId}`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/projects/${projectId}`, {
       headers: {
         "Authorization": `Bearer ${token}`,
       },

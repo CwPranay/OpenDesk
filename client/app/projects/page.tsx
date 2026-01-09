@@ -42,7 +42,7 @@ export default function ProjectsPage() {
           template: "integrationn_fallback",
         });
 
-        const res = await fetch("http://localhost:5000/api/projects", {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/projects`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 

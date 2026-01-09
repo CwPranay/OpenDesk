@@ -25,7 +25,7 @@ export default function TaskItem({ task, onTaskUpdated, onTaskDeleted, readOnly 
 
     const token = await getToken();
 
-    const res = await fetch(`http://localhost:5000/api/tasks/${task._id}`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tasks/${task._id}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -43,7 +43,7 @@ export default function TaskItem({ task, onTaskUpdated, onTaskDeleted, readOnly 
 
     const token = await getToken();
 
-    const res = await fetch(`http://localhost:5000/api/tasks/${task._id}`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tasks/${task._id}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` },
     });

@@ -16,7 +16,7 @@ export default function Home() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/hello");
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/hello`);
         const data = await res.json();
         setMessage(data.message);
 

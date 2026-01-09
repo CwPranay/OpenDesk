@@ -23,7 +23,7 @@ export default function TaskForm({ projectId, onTaskCreated }:TaskFormProps) {
         e.preventDefault();
         if (!title.trim()) return;
         const token = await getToken()
-        const res = await fetch(`http://localhost:5000/api/tasks/${projectId}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tasks/${projectId}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
