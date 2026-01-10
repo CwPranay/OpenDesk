@@ -18,7 +18,9 @@ export const metadata: Metadata = {
   title: {
     default: "OpenDesk – Collaborative Project & Task Management Platform",
     template: "%s | OpenDesk",
+    
   },
+ 
 
   description:
     "OpenDesk is a modern collaboration platform to manage projects, tasks, and teamwork efficiently. Built for developers and teams.",
