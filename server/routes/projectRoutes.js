@@ -61,7 +61,7 @@ router.get("/",requireAuth, async (req, res) => {
 /* -----------------------------------------------------------
     PUBLIC ROUTE — VIEW PROJECT DETAILS
 ----------------------------------------------------------- */
-router.get("/:id",requireAuth, async (req, res) => {
+router.get("/:id", async (req, res) => {
   try {
     const project = await Project.findById(req.params.id)
       .populate("owner", "name email clerkId");
