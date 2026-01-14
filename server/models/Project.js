@@ -4,7 +4,15 @@ const projectShema = new mongoose.Schema({
     title:{type:String,required:true},
     description:String,
     repoUrl: { type: String },
-    language: { type: String, default: "Unknown", index: true },
+    language: { type: String, enum:[
+        "Javascript",
+        "Typescript",
+        "Python",
+        "Java",
+        "C++",
+        "Go",
+        "Rust"
+    ], index: true,required:true },
     owner: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     members:[{type:mongoose.Schema.Types.ObjectId,ref:'User'}],
     createdAt:{type:Date,default:Date.now},

@@ -11,17 +11,13 @@ const router = express.Router();
 ----------------------------------------------------------- */
 router.get("/explore", async (req, res) => {
   try {
-    const { lang, search } = req.query;
-   console.log(process.env.MONGODB_URI)
-    let filter = {};
-
-    if (search) {
-      filter.title = { $regex: search, $options: "i" };
+    const { language } = req.query;
+    console.log(process.env.MONGODB_URI)
+    let query = {};
+    if (language && language !== "ALL") {
+      query.language = language
     }
 
-    if (lang) {
-      filter.language = lang;
-    }
 
     const projects = await Project.find(filter)
       .populate("owner", "name email clerkId")
@@ -37,7 +33,7 @@ router.get("/explore", async (req, res) => {
 /* -----------------------------------------------------------
     PRIVATE ROUTE — GET USER'S OWN PROJECTS
 ----------------------------------------------------------- */
-router.get("/",requireAuth, async (req, res) => {
+router.get("/", requireAuth, async (req, res) => {
   try {
     if (!req.userId) {
       return res.status(401).json({ error: "User not authenticated" });
@@ -88,7 +84,7 @@ router.get("/:id", async (req, res) => {
 /* -----------------------------------------------------------
     PRIVATE ROUTE — CREATE PROJECT
 ----------------------------------------------------------- */
-router.post("/",requireAuth, async (req, res) => {
+router.post("/", requireAuth, async (req, res) => {
   try {
     if (!req.userId) {
       return res.status(401).json({ error: "User not authenticated" });
@@ -130,7 +126,7 @@ router.post("/",requireAuth, async (req, res) => {
 /* -----------------------------------------------------------
     PRIVATE ROUTE — DELETE PROJECT
 ----------------------------------------------------------- */
-router.delete("/:id",requireAuth, async (req, res) => {
+router.delete("/:id", requireAuth, async (req, res) => {
   try {
     if (!req.userId) {
       return res.status(401).json({ error: "User not authenticated" });
