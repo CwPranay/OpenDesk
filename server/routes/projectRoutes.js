@@ -15,12 +15,12 @@ router.get("/explore", async (req, res) => {
     const { language } = req.query;
     console.log(process.env.MONGODB_URI)
     let query = {};
-    if (language && language !== "ALL") {
+    if (language && language !== "All") {
       query.language = language
     }
 
 
-    const projects = await Project.find(filter)
+    const projects = await Project.find(query)
       .populate("owner", "name email clerkId")
       .sort({ createdAt: -1 });
 

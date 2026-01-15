@@ -12,6 +12,7 @@ interface Project {
 }
 
 export default function ProjectsPage() {
+  const [selectedLanguage, setSelectedLanguage] = useState("All")
   const [projects, setProjects] = useState<Project[]>([]);
   const { getToken } = useAuth();
   const [loading, setLoading] = useState(true);
@@ -19,8 +20,8 @@ export default function ProjectsPage() {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const token = await getToken({ template: "integrationn_fallback" }); 
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/projects/explore`);
+        const token = await getToken({ template: "integrationn_fallback" });
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/projects/explore?language=${selectedLanguage}`);
         const data = await res.json();
         setProjects(data);
       } catch (err) {
@@ -30,9 +31,9 @@ export default function ProjectsPage() {
       }
     };
     fetchProjects();
-  }, [getToken]);
+  }, [getToken, selectedLanguage]);
 
-  
+
   if (loading) {
     return (
       <main className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
@@ -48,23 +49,57 @@ export default function ProjectsPage() {
     <main className="min-h-screen bg-gradient-to-br from-slate-950 via-gray-900 to-slate-950 text-white py-12 px-6">
       {/* Subtle background pattern */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-900/10 via-transparent to-transparent"></div>
-      
-      <div className="relative z-10 max-w-7xl mx-auto">
-        {/* Header Section */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold mb-3 text-white">
-           All Projects
-          </h1>
-          
-        </div>
 
-       
+      <div className="relative z-10 max-w-7xl mx-auto">
+        <div className="mb-10 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+          {/* Title */}
+          <div>
+            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white">
+              All Projects
+            </h1>
+            <p className="text-gray-400 mt-1 text-sm">
+              Explore projects by programming language
+            </p>
+          </div>
+
+          {/* Filter */}
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-gray-400">Filter:</span>
+            <select
+              value={selectedLanguage}
+              onChange={(e) => setSelectedLanguage(e.target.value)}
+              className="bg-gray-900 border border-gray-700 text-white text-sm px-4 py-2 rounded-lg 
+                 hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-600
+                 transition"
+            >
+              <option value="All">All</option>
+              <option value="JavaScript">JavaScript</option>
+              <option value="TypeScript">TypeScript</option>
+              <option value="Python">Python</option>
+              <option value="Java">Java</option>
+              <option value="C++">C++</option>
+            </select>
+          </div>
+        </div>
+        {selectedLanguage !== "All" && (
+  <div className="mb-6 text-sm text-gray-400">
+    Showing projects in{" "}
+    <span className="text-blue-500 font-medium">
+      {selectedLanguage}
+    </span>
+  </div>
+)}
+
+
+
+
         {/* Projects Grid */}
         {projects.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {projects.map((project: Project) => (
               <Link key={project._id} href={`/projects/${project._id}?from=explore`}>
-                <div className="group bg-gradient-to-br from-gray-800 to-gray-900 backdrop-blur-sm rounded-xl p-6 border border-gray-700 hover:border-blue-600/50 hover:from-gray-800 hover:to-gray-800 transition-all duration-300 cursor-pointer shadow-xl hover:shadow-2xl hover:-translate-y-1">
+                <div className="group bg-gradient-to-br from-gray-800 to-gray-900 backdrop-blur-sm rounded-xl p-6 border border-gray-700 hover:border-blue-600/50 hover:from-gray-800 hover:to-gray-800 transition-all duration-300 cursor-pointer shadow-xl hover:shadow-2xl hover:-translate-y-1.5 hover:scale-[1.01]
+  ease-out">
                   <div className="flex items-start gap-4 mb-4">
                     <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center flex-shrink-0 shadow-lg group-hover:from-blue-600 group-hover:to-blue-700 transition-all duration-300">
                       <svg className="w-5 h-5 text-gray-300 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -104,7 +139,7 @@ export default function ProjectsPage() {
               </svg>
             </div>
             <h3 className="text-xl font-semibold text-gray-300 mb-2">No projects yet</h3>
-            
+
           </div>
         )}
       </div>
