@@ -5,8 +5,8 @@ const projectShema = new mongoose.Schema({
     description:String,
     repoUrl: { type: String },
     language: { type: String, enum:[
-        "Javascript",
-        "Typescript",
+        "JavaScript",
+        "TypeScript",
         "Python",
         "Java",
         "C++",

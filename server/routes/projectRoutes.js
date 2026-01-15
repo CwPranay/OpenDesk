@@ -3,6 +3,7 @@ import Project from "../models/Project.js";
 import User from "../models/User.js";
 import { clerkClient } from "@clerk/clerk-sdk-node";
 import { requireAuth } from "../middleware/auth.js";
+import { getGitHubLanguage } from "../utils/getGitHubLanguage.js";
 
 const router = express.Router();
 
@@ -90,8 +91,24 @@ router.post("/", requireAuth, async (req, res) => {
       return res.status(401).json({ error: "User not authenticated" });
     }
 
-    const { title, description, repoUrl } = req.body;
+    const { title, description, repoUrl, language } = req.body;
 
+    let finalLanguage = language;
+    if (!finalLanguage && repoUrl) {
+      const parsed = parseGithubRepo(repoUrl);
+      if (parsed) {
+        const detected = await getGitHubLanguage(
+          parsed.owner,
+          parsed.repo
+        )
+        if (detected) finalLanguage = detected;
+      }
+    }
+    if (!finalLanguage) {
+      return res.status(400).json({
+        error: "Unable to detect language. Please select manually."
+      });
+    }
     if (!title || title.trim() === "") {
       return res.status(400).json({ error: "Project title is required" });
     }
@@ -111,6 +128,7 @@ router.post("/", requireAuth, async (req, res) => {
       title,
       description,
       repoUrl,
+      language:finalLanguage,
       owner: user._id,
     });
 
