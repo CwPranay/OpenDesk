@@ -3,6 +3,7 @@ import Project from "../models/Project.js";
 import User from "../models/User.js";
 import { clerkClient } from "@clerk/clerk-sdk-node";
 import { requireAuth } from "../middleware/auth.js";
+import { parseGithubRepo } from "../utils/parseGitHubRepo.js";
 import { getGitHubLanguage } from "../utils/getGitHubLanguage.js";
 
 const router = express.Router();
